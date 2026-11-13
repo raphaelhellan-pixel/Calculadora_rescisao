@@ -3,163 +3,685 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Rescisão de Contrato</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #cc367c;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+    <title>Calculadora de Rescisão Trabalhista (CLT)</title>
+    <!-- Carregamento do Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Fonte Inter para maior legibilidade -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
         }
-        .container {
-            background: #69c220;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 500px;
-        }
-        h2 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 20px;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            color: #555;
-            font-weight: bold;
-        }
-        input {
-            width: 100%;
-            padding: 10px;
-            box-sizing: border-box;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 16px;
-        }
-        button {
-            width: 100%;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 12px;
-            font-size: 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        .results {
-            margin-top: 25px;
-            border-top: 1px solid #eee;
-            padding-top: 15px;
-        }
-        .result-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            font-size: 15px;
-            color: #444;
-        }
-        .result-item.total {
-            font-weight: bold;
-            font-size: 18px;
-            color: #007bff;
-            border-top: 1px dashed #ccc;
-            padding-top: 10px;
-        }
-    </style>
+    </script>
 </head>
-<body>
+<body class="bg-slate-100 text-slate-800 antialiased min-h-screen py-8 px-4 sm:px-6 lg:px-8">
 
-<div class="container">
-    <h2>Calculadora de Rescisão</h2>
-    
-    <div class="form-group">
-        <label for="salario">Salário Bruto (R$):</label>
-        <input type="number" id="salario" placeholder="Ex: 3000.00" step="0.01">
-    </div>
+    <div class="max-w-4xl mx-auto">
+        <!-- Cabeçalho -->
+        <header class="text-center mb-8">
+            <div class="inline-flex items-center justify-center p-3 bg-blue-600 text-white rounded-2xl shadow-md mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Calculadora de Rescisão Trabalhista</h1>
+            <p class="text-slate-600 mt-2 text-sm sm:text-base max-w-xl mx-auto">
+                Simule suas verbas rescisórias de acordo com as regras da CLT, incluindo cálculo por datas, aviso prévio proporcional, férias, 13º, INSS e multa do FGTS.
+            </p>
+        </header>
 
-    <div class="form-group">
-        <label for="diasTrabalhados">Dias trabalhados no mês da rescisão:</label>
-        <input type="number" id="diasTrabalhados" placeholder="Ex: 15" min="0" max="31">
-    </div>
-
-    <div class="form-group">
-        <label for="meses13">Meses trabalhados no ano (para 13º):</label>
-        <input type="number" id="meses13" placeholder="Ex: 6" min="0" max="12">
-    </div>
-
-    <div class="form-group">
-        <label for="mesesFerias">Meses trabalhados no período de férias:</label>
-        <input type="number" id="mesesFerias" placeholder="Ex: 10" min="0" max="12">
-    </div>
-
-    <button onclick="calcularRescisao()">Calcular Rescisão</button>
-
-    <div class="results" id="resultados" style="display: none;">
-        <h3>Resultado Estimado:</h3>
-        <div class="result-item">
-            <span>Saldo de Salário:</span>
-            <span id="resSaldo">R$ 0,00</span>
+        <!-- Alerta de Validação Customizado (Substitui alert()) -->
+        <div id="alertBox" class="hidden mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-xl shadow-sm transition-all">
+            <div class="flex items-center">
+                <svg class="h-5 w-5 text-red-500 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p id="alertMessage" class="text-sm font-medium text-red-800"></p>
+            </div>
         </div>
-        <div class="result-item">
-            <span>13º Salário Proporcional:</span>
-            <span id="res13">R$ 0,00</span>
+
+        <!-- Grid Principal -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            
+            <!-- Coluna do Formulário (7 colunas no desktop) -->
+            <div class="lg:col-span-7 bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
+                <h2 class="text-lg font-semibold text-slate-800 border-b border-slate-100 pb-3 mb-5 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-blue-600"></span>
+                    Dados do Contrato
+                </h2>
+
+                <form id="rescisaoForm" class="space-y-5" onsubmit="event.preventDefault(); calcularRescisao();">
+                    
+                    <!-- Salário Bruto -->
+                    <div>
+                        <label for="salario" class="block text-sm font-medium text-slate-700 mb-1">
+                            Salário Bruto Mensal (R$) <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 font-medium">R$</span>
+                            <input type="number" id="salario" step="0.01" min="1" placeholder="3.500,00" required
+                                class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-white transition-colors">
+                        </div>
+                    </div>
+
+                    <!-- Datas de Admissão e Demissão -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="dataAdmissao" class="block text-sm font-medium text-slate-700 mb-1">
+                                Data de Admissão <span class="text-red-500">*</span>
+                            </label>
+                            <input type="date" id="dataAdmissao" required
+                                class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-white transition-colors">
+                        </div>
+                        <div>
+                            <label for="dataDemissao" class="block text-sm font-medium text-slate-700 mb-1">
+                                Data de Demissão (Último dia) <span class="text-red-500">*</span>
+                            </label>
+                            <input type="date" id="dataDemissao" required
+                                class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-white transition-colors">
+                        </div>
+                    </div>
+
+                    <!-- Motivo da Rescisão -->
+                    <div>
+                        <label for="motivo" class="block text-sm font-medium text-slate-700 mb-1">
+                            Motivo da Rescisão
+                        </label>
+                        <select id="motivo" onchange="atualizarOpcoesAviso()"
+                            class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-white transition-colors">
+                            <option value="sem_justa_causa">Dispensa sem justa causa (pelo empregador)</option>
+                            <option value="pedido_demissao">Pedido de demissão (pelo funcionário)</option>
+                            <option value="justa_causa">Demissão por justa causa</option>
+                            <option value="termino_experiencia">Término de contrato de experiência (no prazo)</option>
+                        </select>
+                    </div>
+
+                    <!-- Aviso Prévio -->
+                    <div id="grupoAvisoPrevio">
+                        <label for="avisoPrevio" class="block text-sm font-medium text-slate-700 mb-1">
+                            Aviso Prévio
+                        </label>
+                        <select id="avisoPrevio"
+                            class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-white transition-colors">
+                            <option value="trabalhado">Trabalhado</option>
+                            <option value="indenizado">Indenizado (pago pela empresa)</option>
+                            <option value="nao_cumprido">Não cumprido (descontado do funcionário)</option>
+                        </select>
+                        <p id="dicaAviso" class="text-xs text-slate-500 mt-1">
+                            Na dispensa sem justa causa, o aviso indenizado inclui 3 dias extras por ano trabalhado.
+                        </p>
+                    </div>
+
+                    <!-- Férias Vencidas -->
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex items-start gap-3">
+                        <input type="checkbox" id="feriasVencidas"
+                            class="mt-1 h-4 w-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500 cursor-pointer">
+                        <div>
+                            <label for="feriasVencidas" class="text-sm font-medium text-slate-800 cursor-pointer">
+                                Possui férias vencidas (não gozadas)?
+                            </label>
+                            <p class="text-xs text-slate-500 mt-0.5">
+                                Marque caso tenha completado 12 meses de trabalho sem tirar o descanso correspondente.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Saldo FGTS (Exibido apenas na dispensa sem justa causa) -->
+                    <div id="grupoFgts">
+                        <label for="saldoFgts" class="block text-sm font-medium text-slate-700 mb-1">
+                            Saldo Estimado de FGTS (R$) <span class="text-slate-400 font-normal">(Opcional)</span>
+                        </label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 font-medium">R$</span>
+                            <input type="number" id="saldoFgts" step="0.01" min="0" placeholder="Deixe em branco para estimar automaticamente"
+                                class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-white transition-colors">
+                        </div>
+                        <p class="text-xs text-slate-500 mt-1">
+                            Se deixado em branco, calcularemos 8% ao mês sobre o tempo trabalhado para estimar a multa de 40%.
+                        </p>
+                    </div>
+
+                    <!-- Botões de Ação -->
+                    <div class="pt-2 flex flex-col sm:flex-row gap-3">
+                        <button type="submit"
+                            class="flex-1 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold py-3 px-6 rounded-xl shadow-sm transition-all cursor-pointer flex items-center justify-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V4a2 2 0 00-2-2H6zm1 2a1 1 0 000 2h6a1 1 0 100-2H7zm6 7a1 1 0 011 1v3a1 1 0 11-2 0v-3a1 1 0 011-1zm-3 3a1 1 0 100 2h.01a1 1 0 100-2H10zm-4 1a1 1 0 011-1h.01a1 1 0 110 2H7a1 1 0 01-1-1zm1-4a1 1 0 100 2h.01a1 1 0 100-2H7zm2 1a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1zm4-4a1 1 0 100 2h.01a1 1 0 100-2H13zM9 9a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1zM7 8a1 1 0 000 2h.01a1 1 0 000-2H7z" clip-rule="evenodd" />
+                            </svg>
+                            Calcular Rescisão
+                        </button>
+                        <button type="button" onclick="limparFormulario()"
+                            class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-3 px-5 rounded-xl transition-colors cursor-pointer">
+                            Limpar
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Coluna de Resultados (5 colunas no desktop) -->
+            <div class="lg:col-span-5 space-y-6">
+                
+                <!-- Estado Inicial (Antes de calcular) -->
+                <div id="placeholderResultado" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 text-center">
+                    <div class="w-16 h-16 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-base font-semibold text-slate-800">Aguardando dados</h3>
+                    <p class="text-sm text-slate-500 mt-1">
+                        Preencha os campos ao lado e clique em <strong>Calcular Rescisão</strong> para visualizar o demonstrativo detalhado.
+                    </p>
+                </div>
+
+                <!-- Card de Resultados (Oculto inicialmente) -->
+                <div id="cardResultado" class="hidden space-y-5">
+                    
+                    <!-- Resumo do Tempo de Casa -->
+                    <div class="bg-blue-50 border border-blue-100 rounded-2xl p-4 text-sm text-blue-900">
+                        <div class="font-semibold flex items-center gap-1.5 mb-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-600" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+                            </svg>
+                            Resumo do Período Apurado
+                        </div>
+                        <p id="resumoPeriodo" class="text-blue-800 text-xs leading-relaxed"></p>
+                    </div>
+
+                    <!-- Demonstrativo Principal -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="bg-slate-800 text-white px-6 py-4">
+                            <span class="text-xs uppercase tracking-wider text-slate-300 font-semibold">Valor Líquido a Receber</span>
+                            <div id="valorLiquido" class="text-3xl font-bold mt-0.5 text-emerald-400">R$ 0,00</div>
+                        </div>
+
+                        <div class="p-6 space-y-6">
+                            <!-- Proventos -->
+                            <div>
+                                <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md inline-block mb-3">
+                                    + Proventos (Verbas a Receber)
+                                </h3>
+                                <div id="listaProventos" class="space-y-2.5 text-sm">
+                                    <!-- Preenchido via JS -->
+                                </div>
+                                <div class="border-t border-slate-100 mt-3 pt-2.5 flex justify-between font-semibold text-slate-800 text-sm">
+                                    <span>Total Bruto</span>
+                                    <span id="totalProventos">R$ 0,00</span>
+                                </div>
+                            </div>
+
+                            <!-- Descontos -->
+                            <div>
+                                <h3 class="text-xs font-bold uppercase tracking-wider text-rose-700 bg-rose-50 px-2.5 py-1 rounded-md inline-block mb-3">
+                                    - Descontos Estimados
+                                </h3>
+                                <div id="listaDescontos" class="space-y-2.5 text-sm">
+                                    <!-- Preenchido via JS -->
+                                </div>
+                                <div class="border-t border-slate-100 mt-3 pt-2.5 flex justify-between font-semibold text-rose-600 text-sm">
+                                    <span>Total de Descontos</span>
+                                    <span id="totalDescontos">R$ 0,00</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card FGTS (Exibido apenas se aplicável) -->
+                    <div id="cardFgts" class="hidden bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-2.5 py-1 rounded-md">
+                                FGTS & Multa Rescisória (40%)
+                            </span>
+                        </div>
+                        <div class="space-y-2 text-sm mt-3">
+                            <div class="flex justify-between text-slate-600">
+                                <span>Saldo base considerado:</span>
+                                <span id="fgtsBaseExibicao" class="font-medium text-slate-800">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between text-slate-800 font-semibold pt-1 border-t border-slate-100">
+                                <span>Multa de 40% do FGTS:</span>
+                                <span id="fgtsMultaExibicao" class="text-blue-600">R$ 0,00</span>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-2.5">
+                            * A multa de 40% é depositada diretamente na conta vinculada do FGTS do trabalhador.
+                        </p>
+                    </div>
+
+                </div>
+            </div>
         </div>
-        <div class="result-item">
-            <span>Férias Proporcionais + 1/3:</span>
-            <span id="resFerias">R$ 0,00</span>
-        </div>
-        <div class="result-item total">
-            <span>Total Bruto Estimado:</span>
-            <span id="resTotal">R$ 0,00</span>
-        </div>
+
+        <!-- Rodapé Informativo -->
+        <footer class="mt-10 text-center text-xs text-slate-500 max-w-2xl mx-auto leading-relaxed">
+            <p>
+                <strong>Aviso Legal:</strong> Esta calculadora realiza uma simulação estimada com base nas regras gerais da Consolidação das Leis do Trabalho (CLT). Os valores podem variar conforme convenções coletivas, adicionais (periculosidade, insalubridade, horas extras), faltas injustificadas, dependentes para IRRF ou adiantamentos. Consulte um contador ou o sindicato da categoria para o cálculo oficial.
+            </p>
+        </footer>
     </div>
-</div>
 
-<script>
-    function calcularRescisao() {
-        // Obter valores dos inputs
-        const salario = parseFloat(document.getElementById('salario').value) || 0;
-        const diasTrabalhados = parseInt(document.getElementById('diasTrabalhados').value) || 0;
-        const meses13 = parseInt(document.getElementById('meses13').value) || 0;
-        const mesesFerias = parseInt(document.getElementById('mesesFerias').value) || 0;
+    <script>
+        /**
+         * Formata um número para o padrão monetário brasileiro (BRL).
+         */
+        function formatarMoeda(valor) {
+            return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
 
-        // 1. Saldo de Salário (Salário / 30 * dias trabalhados)
-        const saldoSalario = (salario / 30) * diasTrabalhados;
+        /**
+         * Exibe ou oculta alertas de validação na interface sem usar alert().
+         */
+        function mostrarAlerta(mensagem) {
+            const alertBox = document.getElementById('alertBox');
+            const alertMessage = document.getElementById('alertMessage');
+            if (mensagem) {
+                alertMessage.textContent = mensagem;
+                alertBox.classList.remove('hidden');
+                alertBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else {
+                alertBox.classList.add('hidden');
+            }
+        }
 
-        // 2. 13º Salário Proporcional ((Salário / 12) * meses trabalhados)
-        const decimoTerceiro = (salario / 12) * meses13;
+        /**
+         * Ajusta as opções disponíveis de Aviso Prévio e FGTS conforme o motivo da rescisão.
+         */
+        function atualizarOpcoesAviso() {
+            const motivo = document.getElementById('motivo').value;
+            const grupoAviso = document.getElementById('grupoAvisoPrevio');
+            const selectAviso = document.getElementById('avisoPrevio');
+            const dicaAviso = document.getElementById('dicaAviso');
+            const grupoFgts = document.getElementById('grupoFgts');
 
-        // 3. Férias Proporcionais + 1/3 (((Salário / 12) * meses) + 1/3)
-        const feriasProporcionais = (salario / 12) * mesesFerias;
-        const tercoConstitucional = feriasProporcionais / 3;
-        const totalFerias = feriasProporcionais + tercoConstitucional;
+            // Controla exibição do campo de FGTS (apenas dispensa sem justa causa tem multa de 40%)
+            if (motivo === 'sem_justa_causa') {
+                grupoFgts.classList.remove('hidden');
+            } else {
+                grupoFgts.classList.add('hidden');
+            }
 
-        // 4. Total Geral Bruto
-        const totalGeral = saldoSalario + decimoTerceiro + totalFerias;
+            // Controla opções de Aviso Prévio
+            if (motivo === 'justa_causa' || motivo === 'termino_experiencia') {
+                grupoAviso.classList.add('hidden');
+            } else {
+                grupoAviso.classList.remove('hidden');
+                selectAviso.innerHTML = '';
 
-        // Exibir resultados formatados em Real (BRL)
-        document.getElementById('resSaldo').innerText = saldoSalario.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        document.getElementById('res13').innerText = decimoTerceiro.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        document.getElementById('resFerias').innerText = totalFerias.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        document.getElementById('resTotal').innerText = totalGeral.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                if (motivo === 'sem_justa_causa') {
+                    selectAviso.innerHTML = `
+                        <option value="indenizado">Indenizado (pago pela empresa)</option>
+                        <option value="trabalhado">Trabalhado</option>
+                    `;
+                    dicaAviso.textContent = 'Na dispensa sem justa causa, o aviso indenizado inclui 30 dias + 3 dias por ano completo trabalhado.';
+                } else if (motivo === 'pedido_demissao') {
+                    selectAviso.innerHTML = `
+                        <option value="trabalhado">Trabalhado</option>
+                        <option value="nao_cumprido">Não cumprido (descontado do funcionário)</option>
+                    `;
+                    dicaAviso.textContent = 'No pedido de demissão, se o funcionário não trabalhar o aviso, a empresa pode descontar 1 salário.';
+                }
+            }
+        }
 
-        // Mostrar o bloco de resultados
-        document.getElementById('resultados').style.display = 'block';
-    }
-</script>
+        /**
+         * Calcula o desconto progressivo do INSS (Tabela vigente referência 2024/2025/2026).
+         * Aplicado separadamente sobre o Saldo de Salário e sobre o 13º Salário.
+         */
+        function calcularINSS(baseCalculo) {
+            if (baseCalculo <= 0) return 0;
 
+            // Faixas progressivas do INSS
+            const faixas = [
+                { limite: 1518.00, aliquota: 0.075 },
+                { limite: 2793.88, aliquota: 0.09 },
+                { limite: 4190.83, aliquota: 0.12 },
+                { limite: 8157.41, aliquota: 0.14 }
+            ];
+
+            let inss = 0;
+            let limiteAnterior = 0;
+
+            for (let i = 0; i < faixas.length; i++) {
+                const faixa = faixas[i];
+                if (baseCalculo > limiteAnterior) {
+                    const baseNaFaixa = Math.min(baseCalculo, faixa.limite) - limiteAnterior;
+                    inss += baseNaFaixa * faixa.aliquota;
+                    limiteAnterior = faixa.limite;
+                } else {
+                    break;
+                }
+            }
+
+            return inss;
+        }
+
+        /**
+         * Calcula a diferença de datas e extrai anos completos, meses totais,
+         * dias trabalhados no mês da rescisão, avos de 13º e avos de férias.
+         */
+        function analisarDatas(dataAdmStr, dataDemStr) {
+            // Criar datas evitando problemas de fuso horário (UTC vs Local)
+            const [admAno, admMes, admDia] = dataAdmStr.split('-').map(Number);
+            const [demAno, demMes, demDia] = dataDemStr.split('-').map(Number);
+
+            const dataAdm = new Date(admAno, admMes - 1, admDia);
+            const dataDem = new Date(demAno, demMes - 1, demDia);
+
+            if (dataDem < dataAdm) {
+                return { erro: 'A data de demissão não pode ser anterior à data de admissão.' };
+            }
+
+            // 1. Anos completos trabalhados (para Lei 12.506/2011 - Aviso Prévio Proporcional)
+            let anosCompletos = demAno - admAno;
+            if (demMes < admMes || (demMes === admMes && demDia < admDia)) {
+                anosCompletos--;
+            }
+            anosCompletos = Math.max(0, anosCompletos);
+
+            // 2. Meses totais aproximados (para estimativa automática de FGTS)
+            let mesesTotais = (demAno - admAno) * 12 + (demMes - admMes);
+            if (demDia >= 15) mesesTotais += 1;
+            mesesTotais = Math.max(1, mesesTotais);
+
+            // 3. Dias trabalhados no mês da demissão (Saldo de Salário)
+            let diasSaldoSalario = demDia;
+            // Se admitido e demitido no mesmo mês/ano
+            if (admAno === demAno && admMes === demMes) {
+                diasSaldoSalario = (demDia - admDia) + 1;
+            } else if (demDia === 31) {
+                // Na CLT, mês comercial padrão para mensalista é 30 dias
+                diasSaldoSalario = 30;
+            }
+
+            // 4. Meses proporcionais para 13º Salário no ano da demissão (Regra dos 15 dias)
+            let meses13 = 0;
+            const mesInicio13 = (admAno === demAno) ? admMes : 1;
+
+            for (let m = mesInicio13; m <= demMes; m++) {
+                let diasNoMes = 30;
+                if (admAno === demAno && m === admMes && m === demMes) {
+                    diasNoMes = (demDia - admDia) + 1;
+                } else if (admAno === demAno && m === admMes) {
+                    const ultimoDiaMesAdm = new Date(admAno, admMes, 0).getDate();
+                    diasNoMes = (ultimoDiaMesAdm - admDia) + 1;
+                } else if (m === demMes) {
+                    diasNoMes = demDia;
+                }
+
+                if (diasNoMes >= 15) {
+                    meses13++;
+                }
+            }
+            meses13 = Math.min(12, meses13);
+
+            // 5. Meses proporcionais para Férias (Período aquisitivo atual - Regra dos 15 dias)
+            // Encontra o início do último período aquisitivo (aniversário da admissão)
+            let inicioPeriodoFerias = new Date(demAno, admMes - 1, admDia);
+            if (inicioPeriodoFerias > dataDem) {
+                inicioPeriodoFerias = new Date(demAno - 1, admMes - 1, admDia);
+            }
+
+            // Calcula meses completos + fração >= 15 dias desde inicioPeriodoFerias até dataDem
+            let mesesFerias = (dataDem.getFullYear() - inicioPeriodoFerias.getFullYear()) * 12 +
+                              (dataDem.getMonth() - inicioPeriodoFerias.getMonth());
+            
+            let diasRestantesFerias = dataDem.getDate() - inicioPeriodoFerias.getDate() + 1;
+            if (diasRestantesFerias < 0) {
+                mesesFerias--;
+                const ultimoDiaMesAnterior = new Date(dataDem.getFullYear(), dataDem.getMonth(), 0).getDate();
+                diasRestantesFerias += ultimoDiaMesAnterior;
+            }
+
+            if (diasRestantesFerias >= 15) {
+                mesesFerias++;
+            }
+            mesesFerias = Math.max(0, Math.min(12, mesesFerias));
+
+            return {
+                erro: null,
+                anosCompletos,
+                mesesTotais,
+                diasSaldoSalario,
+                meses13,
+                mesesFerias
+            };
+        }
+
+        /**
+         * Função principal de cálculo da rescisão trabalhista.
+         */
+        function calcularRescisao() {
+            mostrarAlerta(null);
+
+            const salario = parseFloat(document.getElementById('salario').value);
+            const dataAdm = document.getElementById('dataAdmissao').value;
+            const dataDem = document.getElementById('dataDemissao').value;
+            const motivo = document.getElementById('motivo').value;
+            const avisoPrevio = document.getElementById('avisoPrevio').value;
+            const temFeriasVencidas = document.getElementById('feriasVencidas').checked;
+            const saldoFgtsInput = parseFloat(document.getElementById('saldoFgts').value);
+
+            // Validações básicas
+            if (isNaN(salario) || salario <= 0) {
+                mostrarAlerta('Por favor, informe um salário bruto mensal válido maior que zero.');
+                return;
+            }
+            if (!dataAdm || !dataDem) {
+                mostrarAlerta('Por favor, preencha as datas de admissão e demissão.');
+                return;
+            }
+
+            const periodo = analisarDatas(dataAdm, dataDem);
+            if (periodo.erro) {
+                mostrarAlerta(periodo.erro);
+                return;
+            }
+
+            const proventos = [];
+            const descontos = [];
+
+            // 1. Saldo de Salário (sempre devido em qualquer rescisão)
+            const valorSaldoSalario = (salario / 30) * periodo.diasSaldoSalario;
+            proventos.push({
+                descricao: `Saldo de Salário (${periodo.diasSaldoSalario} dias)`,
+                valor: valorSaldoSalario
+            });
+
+            // 2. Aviso Prévio Indenizado (apenas na dispensa sem justa causa com aviso indenizado)
+            let diasAvisoIndenizado = 0;
+            let valorAvisoIndenizado = 0;
+            let avosProjecaoAviso = 0;
+
+            if (motivo === 'sem_justa_causa' && avisoPrevio === 'indenizado') {
+                // Lei 12.506/2011: 30 dias + 3 dias por ano completo, limitado a 90 dias
+                diasAvisoIndenizado = Math.min(90, 30 + (periodo.anosCompletos * 3));
+                valorAvisoIndenizado = (salario / 30) * diasAvisoIndenizado;
+                avosProjecaoAviso = Math.floor(diasAvisoIndenizado / 30); // Projeção de pelo menos 1/12
+
+                proventos.push({
+                    descricao: `Aviso Prévio Indenizado (${diasAvisoIndenizado} dias)`,
+                    valor: valorAvisoIndenizado
+                });
+            }
+
+            // 3. 13º Salário Proporcional (não devido na justa causa)
+            let valor13TotalTributavel = 0;
+            if (motivo !== 'justa_causa') {
+                const valor13Prop = (salario / 12) * periodo.meses13;
+                if (valor13Prop > 0) {
+                    proventos.push({
+                        descricao: `13º Salário Proporcional (${periodo.meses13}/12 avos)`,
+                        valor: valor13Prop
+                    });
+                    valor13TotalTributavel += valor13Prop;
+                }
+
+                // 13º Indenizado sobre projeção do aviso prévio
+                if (avosProjecaoAviso > 0) {
+                    const valor13Aviso = (salario / 12) * avosProjecaoAviso;
+                    proventos.push({
+                        descricao: `13º Salário Indenizado - Aviso Prévio (${avosProjecaoAviso}/12)`,
+                        valor: valor13Aviso
+                    });
+                    valor13TotalTributavel += valor13Aviso;
+                }
+            }
+
+            // 4. Férias Vencidas + 1/3 (sempre devidas se houver período completo não gozado, mesmo na justa causa)
+            if (temFeriasVencidas) {
+                const tercoVencidas = salario / 3;
+                proventos.push({
+                    descricao: 'Férias Vencidas (integrais)',
+                    valor: salario
+                });
+                proventos.push({
+                    descricao: '1/3 Constitucional sobre Férias Vencidas',
+                    valor: tercoVencidas
+                });
+            }
+
+            // 5. Férias Proporcionais + 1/3 (não devidas na justa causa)
+            if (motivo !== 'justa_causa') {
+                const totalAvosFerias = Math.min(12, periodo.mesesFerias);
+                if (totalAvosFerias > 0) {
+                    const valorFeriasProp = (salario / 12) * totalAvosFerias;
+                    const tercoFeriasProp = valorFeriasProp / 3;
+                    proventos.push({
+                        descricao: `Férias Proporcionais (${totalAvosFerias}/12 avos)`,
+                        valor: valorFeriasProp
+                    });
+                    proventos.push({
+                        descricao: '1/3 Constitucional sobre Férias Proporcionais',
+                        valor: tercoFeriasProp
+                    });
+                }
+
+                // Férias Indenizadas sobre projeção do aviso prévio
+                if (avosProjecaoAviso > 0) {
+                    const valorFeriasAviso = (salario / 12) * avosProjecaoAviso;
+                    const tercoFeriasAviso = valorFeriasAviso / 3;
+                    proventos.push({
+                        descricao: `Férias Indenizadas - Aviso Prévio (${avosProjecaoAviso}/12 + 1/3)`,
+                        valor: valorFeriasAviso + tercoFeriasAviso
+                    });
+                }
+            }
+
+            // --- CÁLCULO DE DESCONTOS ---
+
+            // A. Desconto de Aviso Prévio não cumprido (Pedido de Demissão)
+            if (motivo === 'pedido_demissao' && avisoPrevio === 'nao_cumprido') {
+                descontos.push({
+                    descricao: 'Aviso Prévio não cumprido (30 dias)',
+                    valor: salario
+                });
+            }
+
+            // B. INSS sobre Saldo de Salário
+            const inssSalario = calcularINSS(valorSaldoSalario);
+            if (inssSalario > 0) {
+                descontos.push({
+                    descricao: 'INSS sobre Saldo de Salário (estimado)',
+                    valor: inssSalario
+                });
+            }
+
+            // C. INSS sobre 13º Salário (tributação exclusiva)
+            const inss13 = calcularINSS(valor13TotalTributavel);
+            if (inss13 > 0) {
+                descontos.push({
+                    descricao: 'INSS sobre 13º Salário (estimado)',
+                    valor: inss13
+                });
+            }
+
+            // --- TOTAIS ---
+            const somaProventos = proventos.reduce((acc, item) => acc + item.valor, 0);
+            const somaDescontos = descontos.reduce((acc, item) => acc + item.valor, 0);
+            const valorLiquido = Math.max(0, somaProventos - somaDescontos);
+
+            // --- MULTA DE 40% DO FGTS (Dispensa sem justa causa) ---
+            const cardFgts = document.getElementById('cardFgts');
+            if (motivo === 'sem_justa_causa') {
+                // Estima FGTS (8% ao mês) + depósitos sobre verbas rescisórias (saldo salário, 13º e aviso)
+                const fgtsVerbasRescisorias = (valorSaldoSalario + valor13TotalTributavel + valorAvisoIndenizado) * 0.08;
+                const saldoAnteriorEstimado = !isNaN(saldoFgtsInput) && saldoFgtsInput > 0
+                    ? saldoFgtsInput
+                    : (salario * 0.08 * periodo.mesesTotais);
+                
+                const baseTotalFgts = saldoAnteriorEstimado + fgtsVerbasRescisorias;
+                const multaFgts = baseTotalFgts * 0.40;
+
+                document.getElementById('fgtsBaseExibicao').textContent = formatarMoeda(baseTotalFgts);
+                document.getElementById('fgtsMultaExibicao').textContent = formatarMoeda(multaFgts);
+                cardFgts.classList.remove('hidden');
+            } else {
+                cardFgts.classList.add('hidden');
+            }
+
+            // --- ATUALIZAÇÃO DA INTERFACE ---
+            document.getElementById('placeholderResultado').classList.add('hidden');
+            document.getElementById('cardResultado').classList.remove('hidden');
+
+            // Resumo do período
+            document.getElementById('resumoPeriodo').innerHTML = `
+                Tempo de casa: <strong>${periodo.anosCompletos} ano(s)</strong> (${periodo.mesesTotais} meses considerados) &bull; 
+                Saldo de salário: <strong>${periodo.diasSaldoSalario} dias</strong> &bull; 
+                Avos de 13º: <strong>${motivo === 'justa_causa' ? 0 : periodo.meses13}/12</strong> &bull; 
+                Avos de férias: <strong>${motivo === 'justa_causa' ? 0 : periodo.mesesFerias}/12</strong>
+            `;
+
+            // Renderiza Proventos
+            const listaProventosEl = document.getElementById('listaProventos');
+            listaProventosEl.innerHTML = proventos.map(item => `
+                <div class="flex justify-between items-start gap-4 text-slate-600">
+                    <span>${item.descricao}</span>
+                    <span class="font-medium text-slate-800 whitespace-nowrap">${formatarMoeda(item.valor)}</span>
+                </div>
+            `).join('');
+
+            // Renderiza Descontos
+            const listaDescontosEl = document.getElementById('listaDescontos');
+            if (descontos.length === 0) {
+                listaDescontosEl.innerHTML = `<p class="text-slate-400 italic text-xs">Nenhum desconto aplicável.</p>`;
+            } else {
+                listaDescontosEl.innerHTML = descontos.map(item => `
+                    <div class="flex justify-between items-start gap-4 text-slate-600">
+                        <span>${item.descricao}</span>
+                        <span class="font-medium text-rose-600 whitespace-nowrap">- ${formatarMoeda(item.valor)}</span>
+                    </div>
+                `).join('');
+            }
+
+            document.getElementById('totalProventos').textContent = formatarMoeda(somaProventos);
+            document.getElementById('totalDescontos').textContent = `- ${formatarMoeda(somaDescontos)}`;
+            document.getElementById('valorLiquido').textContent = formatarMoeda(valorLiquido);
+
+            // Scroll suave até o resultado em telas menores
+            if (window.innerWidth < 1024) {
+                document.getElementById('cardResultado').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        /**
+         * Reseta todos os campos do formulário e restaura a tela inicial de resultados.
+         */
+        function limparFormulario() {
+            document.getElementById('rescisaoForm').reset();
+            mostrarAlerta(null);
+            atualizarOpcoesAviso();
+            document.getElementById('cardResultado').classList.add('hidden');
+            document.getElementById('placeholderResultado').classList.remove('hidden');
+        }
+
+        // Inicializa o estado correto dos selects ao carregar a página
+        window.addEventListener('DOMContentLoaded', atualizarOpcoesAviso);
+    </script>
 </body>
 </html>
